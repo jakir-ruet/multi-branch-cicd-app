@@ -13,10 +13,10 @@ python app.py
 #### How to build, push & pull from Docker Hub
 
 ```bash
-docker build -t jakirbd/multi-branch-multi-branch-cicd-app:latest .
-docker tag existing-image-id jakirbd/multi-branch-multi-branch-cicd-app:latest # If already built
-docker push jakirbd/multi-branch-multi-branch-cicd-app:latest
-docker pull jakirbd/multi-branch-multi-branch-cicd-app:latest
+docker build -t jakirbd/multi-branch-cicd-app:latest .
+docker tag existing-image-id jakirbd/multi-branch-cicd-app:latest # If already built
+docker push jakirbd/multi-branch-cicd-app:latest
+docker pull jakirbd/multi-branch-cicd-app:latest
 ```
 
 > `Kubernetes` & `ArgoCD` files exist only `Master` Branch.
