@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multi-branch-cicd-app
+  namespace: default
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: multi-branch-cicd-app
+  template:
+    metadata:
+      labels:
+        app: multi-branch-cicd-app
+    spec:
+      containers:
+      - name: multi-branch-cicd-app
+        image: jakirbd/multi-branch-cicd-app:latest
+        ports:
+        - containerPort: 5050
