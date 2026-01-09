@@ -7,6 +7,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "jakirbd/multi-branch-cicd-app"
+        IMAGE_TAG  = "${env.BUILD_NUMBER ?: 'latest'}"
         GIT_USER   = "jakir-ruet"
         GIT_EMAIL  = "jakir.ruet.bd@gmail.com"
     }
@@ -35,7 +36,7 @@ pipeline {
                         echo "Building Docker image ${IMAGE_NAME}:${IMAGE_TAG}"
 
                         sh(script: '''
-                            docker build -t "${IMAGE_NAME}:${IMAGE_TAG}" .
+                            docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                             docker push "${IMAGE_NAME}:${IMAGE_TAG}"
                             docker logout
