@@ -25,7 +25,8 @@ pipeline {
             steps {
                 script {
                     // Define image tag locally inside the script block
-                    def IMAGE_TAG = "build-${BUILD_NUMBER}"
+                    //def IMAGE_TAG = "build-${BUILD_NUMBER}"
+                    env.IMAGE_TAG = "build-${BUILD_NUMBER}"
 
                     // Docker credentials
                     withCredentials([usernamePassword(
@@ -40,6 +41,10 @@ pipeline {
                             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
                             docker push "${IMAGE_NAME}:${IMAGE_TAG}"
                             docker logout
+                            // docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                            // echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                            // docker push "${IMAGE_NAME}:${IMAGE_TAG}"
+                            // docker logout
                         ''')
                     }
                 }
