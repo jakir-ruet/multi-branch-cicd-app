@@ -19,27 +19,34 @@ pipeline {
             }
         }
 
-        stage('Build and Push Image') {
-            when { branch 'master' }
-            steps {
-                script {
-                    env.IMAGE_TAG = "build-${BUILD_NUMBER}"
+    stage('Build and Push Image') {
+        when { branch 'master' }
+        environment {
+            IMAGE_TAG = "build-${BUILD_NUMBER}"
+        }
+        steps {
+            script {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    // Build Docker image
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
 
-                    withCredentials([usernamePassword(
-                        credentialsId: 'dockerhub-creds',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )]) {
-                        sh """
-                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                        docker logout
-                        """
-                    }
+                    // Login to Docker Hub securely
+                    sh "echo \"$DOCKER_PASS\" | docker login -u \"$DOCKER_USER\" --password-stdin"
+
+                    // Push image
+                    sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+
+                    // Logout
+                    sh "docker logout"
                 }
             }
         }
+    }
+
 
         stage('Update K8s Manifest') {
             when { branch 'master' }
