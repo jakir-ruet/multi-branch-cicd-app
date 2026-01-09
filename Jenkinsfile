@@ -19,39 +19,37 @@ pipeline {
             }
         }
 
-    stage('Build and Push Image') {
-        when { branch 'master' }
-        environment {
-            IMAGE_TAG = "build-${BUILD_NUMBER}"
-        }
-        steps {
-            script {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    // Build Docker image
-                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+        stage('Build and Push Image') {
+            when { branch 'master' } // adjust if your main branch is 'main'
+            steps {
+                script {
+                    // Define image tag locally inside the script block
+                    def IMAGE_TAG = "build-${BUILD_NUMBER}"
 
-                    // Login to Docker Hub securely
-                    sh "echo \"$DOCKER_PASS\" | docker login -u \"$DOCKER_USER\" --password-stdin"
+                    // Docker credentials
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        echo "Building Docker image ${IMAGE_NAME}:${IMAGE_TAG}"
 
-                    // Push image
-                    sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-
-                    // Logout
-                    sh "docker logout"
+                        sh """
+                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
+                        docker logout
+                        """
+                    }
                 }
             }
         }
-    }
-
 
         stage('Update K8s Manifest') {
             when { branch 'master' }
             steps {
                 script {
+                    // GitHub credentials for pushing manifest
                     withCredentials([usernamePassword(
                         credentialsId: 'github_creds',
                         usernameVariable: 'GIT_USERNAME',
