@@ -34,12 +34,12 @@ pipeline {
                     )]) {
                         echo "Building Docker image ${IMAGE_NAME}:${IMAGE_TAG}"
 
-                        sh """
-                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                        docker logout
-                        """
+                        sh(script: '''
+                            docker build -t "${IMAGE_NAME}:${IMAGE_TAG}" .
+                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                            docker push "${IMAGE_NAME}:${IMAGE_TAG}"
+                            docker logout
+                        ''')
                     }
                 }
             }
